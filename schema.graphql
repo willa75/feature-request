@@ -1,0 +1,38 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  getRequests(limit: Int!, nextToken: String): RequestsPage!
+}
+
+type Mutation {
+  addRequest(text: String!): Request!
+
+  upVoteRequest(requestId: ID!): Boolean!
+
+  unVoteRequest(requestId: ID!): Boolean!
+
+  downVoteRequest(requestId: ID!): Boolean!
+}
+
+type RequestsPage {
+  requests: [Request!]!
+  nextToken: string
+}
+
+type Request {
+  id: ID!
+  createdBy: Profile!
+  createdAt: AWSDateTime!
+  text: String!
+}
+
+type Profile {
+  id: ID!
+  name: String!
+  requestLikes: Int!
+  screenName: String!
+  createdAt: AWSDateTime!
+}
