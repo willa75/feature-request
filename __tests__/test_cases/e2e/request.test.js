@@ -26,7 +26,7 @@ describe('Given an authenticated user', () => {
     describe('When they call getRequests', () => {
       let requests, nextToken;
       beforeAll(async () => {
-        const result = await when.a_user_calls_getRequests(user.username, 25);
+        const result = await when.a_user_calls_getRequests(user, 25);
         requests = result.requests;
         nextToken = result.nextToken;
       });
@@ -43,12 +43,12 @@ describe('Given an authenticated user', () => {
         await when.a_user_likes_a_request(user, request.id);
       });
 
-      it('Should see Request.reviewed as true', async () => {
-        const { requests } = await when.a_user_calls_getRequests(user.username, 25);
+      it('Should see Request.liked as true', async () => {
+        const { requests } = await when.a_user_calls_getRequests(user, 25);
 
         expect(requests).toHaveLength(1);
         expect(requests[0].id).toEqual(request.id);
-        expect(requests[0].reviewed).toEqual(true);
+        expect(requests[0].liked).toEqual(true);
       });
 
       it('Should not be able to like the same request a second time', async () => {
@@ -59,21 +59,22 @@ describe('Given an authenticated user', () => {
         });
       });
 
-      describe('When they dislike the same request', () => {
+      describe('When they unlike the request', () => {
         beforeAll(async () => {
-          await when.a_user_dislikes_a_request(user, request.id);
+          await when.a_user_unlikes_a_request(user, request.id);
         });
 
-        it('Should see Request.reviewed as true', async () => {
-          const { requests } = await when.a_user_calls_getRequests(user.username, 25);
-  
+        it('Should see Request.liked as false', async () => {
+          const { requests } = await when.a_user_calls_getRequests(user, 25);
+
           expect(requests).toHaveLength(1);
+          expect(requests[0].likes).toEqual(0);
           expect(requests[0].id).toEqual(request.id);
-          expect(requests[0].reviewed).toEqual(true);
+          expect(requests[0].liked).toEqual(false);
         });
 
-        it('Should not be able to dislike the same request a second time', async () => {
-          await expect(when.a_user_dislikes_a_request(user, request.id))
+        it('Should not be able to unlike the same request a second time', async () => {
+          await expect(when.a_user_unlikes_a_request(user, request.id))
           .rejects
           .toMatchObject({
             message: expect.stringContaining('DynamoDB transaction error')
