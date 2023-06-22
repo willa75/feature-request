@@ -1,0 +1,120 @@
+service: temp-feature-request
+
+plugins:
+  - serverless-export-outputs
+  - serverless-appsync-plugin
+  - serverless-iam-roles-per-function
+  - serverless-export-env
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  stage: dev
+  region: us-east-1
+  environment:
+    STAGE: ${self:custom.stage}
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+
+package:
+  exclude:
+    - package-lock.json
+    - package.json
+
+custom:
+  region: ${opt:region, self:provider.region}
+  stage: ${opt:stage, self:provider.stage}
+
+  export-env:
+    overwrite: true
+
+  exportOutputs:
+    include:
+      - AwsRegion
+      - ApiUrl
+      - CognitoUserPoolId
+      - CognitoWebClientId
+    output:
+      file: ./.env-outputs
+
+functions:
+  confirmUserSignup:
+    handler: functions/confirm-user-signup.handler
+    environment:
+      USERS_TABLE: !Ref UsersTable
+    iamRoleStatements:
+      - Effect: Allow
+        Action: dynamodb:PutItem
+        Resource: !GetAtt UsersTable.Arn
+
+resources:
+  Resources:
+    UsersTable:
+      Type: AWS::DynamoDB::GlobalTable
+      Properties:
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        Replicas:
+          - Region: us-east-1
+            Tags:
+              - Key: Name
+                Value: users-table
+              - Key: Environment
+                Value: ${self:custom.stage}
+
+    CognitoUserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        AutoVerifiedAttributes:
+          - email
+        Policies:
+          PasswordPolicy:
+            MinimumLength: 8
+            RequireLowercase: false
+            RequireNumbers: false
+            RequireUppercase: false
+            RequireSymbols: false
+        UsernameAttributes:
+          - email
+        Schema:
+          - AttributeDataType: String
+            Name: name
+            Required: false
+            Mutable: true
+        LambdaConfig:
+          PostConfirmation: !GetAtt ConfirmUserSignupLambdaFunction.Arn
+    
+    UserPoolInvokeConfirmUserSignupLambdaPermission:
+      Type: AWS::Lambda::Permission
+      Properties:
+        Action: lambda:invokeFunction
+        FunctionName: !Ref ConfirmUserSignupLambdaFunction
+        Principal: cognito-idp.amazonaws.com
+        SourceArn: !GetAtt CognitoUserPool.Arn
+
+    WebUserPoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        UserPoolId: !Ref CognitoUserPool
+        ClientName: web
+        ExplicitAuthFlows:
+          - ALLOW_USER_SRP_AUTH
+          - ALLOW_USER_PASSWORD_AUTH
+          - ALLOW_REFRESH_TOKEN_AUTH
+        PreventUserExistenceErrors: ENABLED
+
+  Outputs:
+    AwsRegion:
+      Value: ${aws:region}
+
+    CognitoUserPoolId:
+      Value: !Ref CognitoUserPool
+      
+    CognitoWebClientId:
+      Value: !Ref WebUserPoolClient
