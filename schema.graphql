@@ -10,11 +10,9 @@ type Query {
 type Mutation {
   addRequest(text: String!): Request!
 
-  upVoteRequest(requestId: ID!): Boolean!
+  like(requestId: ID!): Boolean!
 
-  unVoteRequest(requestId: ID!): Boolean!
-
-  downVoteRequest(requestId: ID!): Boolean!
+  unlike(requestId: ID!): Boolean!
 }
 
 type RequestsPage {
@@ -24,6 +22,8 @@ type RequestsPage {
 
 type Request {
   id: ID!
+  liked: Boolean!
+  likes: Int!
   createdBy: Profile!
   createdAt: AWSDateTime!
   text: String!
@@ -32,7 +32,8 @@ type Request {
 type Profile {
   id: ID!
   name: String!
-  requestLikes: Int!
+  requestsCount: Int!
+  requestsLiked: Int!
   screenName: String!
   createdAt: AWSDateTime!
 }
