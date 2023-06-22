@@ -39,7 +39,7 @@ const requestCount_is_updated_in_UsersTable = async (id, newCount) => {
   }).promise();
 
   expect(resp.Item).toBeTruthy();
-  expect(resp.Item.requestCount).toEqual(newCount);
+  expect(resp.Item.requestsCount).toEqual(newCount);
 
   return resp.Item;
 };

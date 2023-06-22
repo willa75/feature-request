@@ -48,6 +48,19 @@ functions:
         Action: dynamodb:PutItem
         Resource: !GetAtt UsersTable.Arn
 
+  addRequest:
+    handler: functions/add-request.handler
+    environment:
+      REQUESTS_TABLE: !Ref FeatureRequestsTable
+      USERS_TABLE: !Ref UsersTable
+    iamRoleStatements:
+      - Effect: Allow
+        Action: dynamodb:PutItem
+        Resource: !GetAtt FeatureRequestsTable.Arn
+      - Effect: Allow
+        Action: dynamodb:UpdateItem
+        Resource: !GetAtt UsersTable.Arn
+
 resources:
   Resources:
     UsersTable:
@@ -65,6 +78,24 @@ resources:
             Tags:
               - Key: Name
                 Value: users-table
+              - Key: Environment
+                Value: ${self:custom.stage}
+
+    FeatureRequestsTable:
+      Type: AWS::DynamoDB::GlobalTable
+      Properties:
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        Replicas:
+          - Region: us-east-1
+            Tags:
+              - Key: Name
+                Value: feature-requests-table
               - Key: Environment
                 Value: ${self:custom.stage}
 

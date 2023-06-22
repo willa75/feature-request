@@ -20,8 +20,8 @@ const a_random_user = () => {
 const an_authenticated_user = async () => {
   const { name, email, password } = a_random_user();
 
-  const userPoolId = process.env.COGNITO_USER_POOL_ID;
-  const clientId = process.env.WEB_COGNITO_USER_POOL_CLIENT_ID;
+  const userPoolId = process.env.CognitoUserPoolId;
+  const clientId = process.env.CognitoWebClientId;
 
   const signUpResponse = await Cognito.signUp({
     ClientId: clientId,
