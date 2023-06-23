@@ -17,7 +17,7 @@ type Mutation {
 
 type RequestsPage {
   requests: [Request!]!
-  nextToken: string
+  nextToken: String
 }
 
 type Request {

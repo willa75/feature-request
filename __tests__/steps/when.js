@@ -2,6 +2,21 @@ require('isomorphic-fetch');
 const gql = require('graphql-tag');
 const { AWSAppSyncClient, AUTH_TYPE } = require('aws-appsync');
 
+const appSyncConfig = (user) => ({
+  url: process.env.ApiUrl,
+  region: process.env.AwsRegion,
+  auth: {
+    type: AUTH_TYPE.AMAZON_COGNITO_USER_POOLS,
+    jwtToken: () => `Bearer ${user.idToken}`
+  },
+  disableOffline: true
+});
+
+const initAppSyncClient = (user) => {
+  const config = appSyncConfig(user);
+  return new AWSAppSyncClient(config);
+};
+
 const we_invoke_add_request = async (username, text) => {
   const handler = require('../../functions/add-request').handler;
 
