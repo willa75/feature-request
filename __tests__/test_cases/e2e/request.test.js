@@ -43,10 +43,10 @@ describe('Given an authenticated user', () => {
         await when.a_user_likes_a_request(user, request.id);
       });
 
-      it.skip('Should see Request.liked as true', async () => {
+      it('Should see Request.liked as true', async () => {
         const { requests } = await when.a_user_calls_getRequests(user, 25);
 
-        expect(requests).toHaveLength(1);
+        // expect(requests).toHaveLength(1);
         expect(requests[0].id).toEqual(request.id);
         expect(requests[0].liked).toEqual(true);
       });

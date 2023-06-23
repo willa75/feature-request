@@ -67,9 +67,16 @@ const a_user_calls_getRequests = async (user, limit, nextToken) => {
         nextToken
         requests {
           id
-          likes
           createdAt
           text
+          liked
+          likes
+          createdBy {
+            id
+            name
+            screenName
+            requestsCount
+          }
         }
       }
     }`,
@@ -94,6 +101,8 @@ const a_user_calls_addRequest = async (user, text) => {
         id
         createdAt
         text
+        liked
+        likes
         createdBy {
           id
           name

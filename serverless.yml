@@ -67,6 +67,13 @@ appSync:
         - dataSource: usersTable
           code: resolvers/created-by.js
 
+    requestLiked:
+      type: Request
+      field: liked
+      functions:
+        - dataSource: reviewsTable
+          code: resolvers/liked-by.js
+
 
   dataSources:
     none:
@@ -79,6 +86,10 @@ appSync:
       type: AMAZON_DYNAMODB
       config:
         tableName: !Ref FeatureRequestsTable
+    reviewsTable:
+      type: AMAZON_DYNAMODB
+      config:
+        tableName: !Ref FeatureReviewTable
     likeMutation:
       type: AMAZON_DYNAMODB
       config:
