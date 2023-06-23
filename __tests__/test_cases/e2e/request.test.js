@@ -38,12 +38,12 @@ describe('Given an authenticated user', () => {
       });
     });
 
-    describe.skip('When they like the request', () => {
+    describe('When they like the request', () => {
       beforeAll(async () => {
         await when.a_user_likes_a_request(user, request.id);
       });
 
-      it('Should see Request.liked as true', async () => {
+      it.skip('Should see Request.liked as true', async () => {
         const { requests } = await when.a_user_calls_getRequests(user, 25);
 
         expect(requests).toHaveLength(1);
@@ -59,7 +59,7 @@ describe('Given an authenticated user', () => {
         });
       });
 
-      describe('When they unlike the request', () => {
+      describe.skip('When they unlike the request', () => {
         beforeAll(async () => {
           await when.a_user_unlikes_a_request(user, request.id);
         });

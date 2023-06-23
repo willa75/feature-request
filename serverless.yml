@@ -5,6 +5,7 @@ plugins:
   - serverless-appsync-plugin
   - serverless-iam-roles-per-function
   - serverless-export-env
+  - serverless-esbuild
 
 frameworkVersion: '3'
 
@@ -43,6 +44,13 @@ appSync:
       kind: UNIT
       dataSource: addRequestFunction
 
+    like:
+      type: Mutation
+      field: like
+      functions:
+        - dataSource: likeMutation
+          code: resolvers/like-request.js
+
     # Nested fields
     requestedProfile:
       type: Request
@@ -57,6 +65,21 @@ appSync:
       type: AMAZON_DYNAMODB
       config:
         tableName: !Ref UsersTable
+    likeMutation:
+      type: AMAZON_DYNAMODB
+      config:
+        tableName: !Ref FeatureReviewTable
+        iamRoleStatements:
+          - Effect: Allow
+            Action: 
+              - dynamodb:PutItem
+            Resource: !GetAtt FeatureReviewTable.Arn
+          - Effect: Allow
+            Action: 
+              - dynamodb:UpdateItem
+            Resource:
+              - !GetAtt UsersTable.Arn
+              - !GetAtt FeatureRequestsTable.Arn
     addRequestFunction:
       type: AWS_LAMBDA
       config:
@@ -64,6 +87,8 @@ appSync:
 
   substitutions:
     USERS_TABLE: !Ref UsersTable
+    REQUESTS_TABLE: !Ref FeatureRequestsTable
+    REVIEWS_TABLE: !Ref FeatureReviewTable
 
 custom:
   region: ${opt:region, self:provider.region}
@@ -143,6 +168,28 @@ resources:
             Tags:
               - Key: Name
                 Value: feature-requests-table
+              - Key: Environment
+                Value: ${self:custom.stage}
+
+    FeatureReviewTable:
+      Type: AWS::DynamoDB::GlobalTable
+      Properties:
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: requestId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+          - AttributeName: requestId
+            KeyType: RANGE 
+        Replicas:
+          - Region: us-east-1
+            Tags:
+              - Key: Name
+                Value: feature-review-table
               - Key: Environment
                 Value: ${self:custom.stage}
 
