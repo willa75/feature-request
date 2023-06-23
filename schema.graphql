@@ -5,6 +5,7 @@ schema {
 
 type Query {
   getRequests(limit: Int!, nextToken: String): RequestsPage!
+  getRequestById(id: ID!): Request!
 }
 
 type Mutation {
