@@ -37,6 +37,14 @@ appSync:
     excludeVerboseContent: false
   xrayEnabled: true
   resolvers:
+    # Queries
+    getRequests:
+      type: Query
+      field: getRequests
+      functions:
+        - dataSource: requestsTable
+          code: resolvers/get-requests.js
+
     # Mutations
     addRequest:
       type: Mutation
@@ -61,10 +69,16 @@ appSync:
 
 
   dataSources:
+    none:
+      type: NONE
     usersTable:
       type: AMAZON_DYNAMODB
       config:
         tableName: !Ref UsersTable
+    requestsTable:
+      type: AMAZON_DYNAMODB
+      config:
+        tableName: !Ref FeatureRequestsTable
     likeMutation:
       type: AMAZON_DYNAMODB
       config:

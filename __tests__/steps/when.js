@@ -68,7 +68,6 @@ const a_user_calls_getRequests = async (user, limit, nextToken) => {
         requests {
           id
           likes
-          reviewed
           createdAt
           text
         }
@@ -111,8 +110,6 @@ const a_user_calls_addRequest = async (user, text) => {
   const newRequest = resp.data.addRequest;
 
   console.log(`[${user.username}] - posted new addRequest`);
-
-  console.warn('New Request', newRequest);
 
   return newRequest;
 };
