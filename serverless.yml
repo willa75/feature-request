@@ -43,11 +43,27 @@ appSync:
       kind: UNIT
       dataSource: addRequestFunction
 
+    # Nested fields
+    requestedProfile:
+      type: Request
+      field: createdBy
+      functions:
+        - dataSource: usersTable
+          code: resolvers/created-by.js
+
+
   dataSources:
+    usersTable:
+      type: AMAZON_DYNAMODB
+      config:
+        tableName: !Ref UsersTable
     addRequestFunction:
       type: AWS_LAMBDA
       config:
         functionName: addRequest
+
+  substitutions:
+    USERS_TABLE: !Ref UsersTable
 
 custom:
   region: ${opt:region, self:provider.region}

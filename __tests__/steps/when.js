@@ -95,6 +95,12 @@ const a_user_calls_addRequest = async (user, text) => {
         id
         createdAt
         text
+        createdBy {
+          id
+          name
+          screenName
+          requestsCount
+        }
       }
     }`,
     variables: {
@@ -105,6 +111,8 @@ const a_user_calls_addRequest = async (user, text) => {
   const newRequest = resp.data.addRequest;
 
   console.log(`[${user.username}] - posted new addRequest`);
+
+  console.warn('New Request', newRequest);
 
   return newRequest;
 };
