@@ -52,12 +52,19 @@ appSync:
       kind: UNIT
       dataSource: addRequestFunction
 
-    like:
+    likeMutation:
       type: Mutation
       field: like
       functions:
         - dataSource: likeMutation
           code: resolvers/like-request.js
+
+    unlikeMutation:
+      type: Mutation
+      field: unlike
+      functions:
+        - dataSource: unlikeMutation
+          code: resolvers/unlike-request.js
 
     # Nested fields
     requestedProfile:
@@ -98,6 +105,21 @@ appSync:
           - Effect: Allow
             Action: 
               - dynamodb:PutItem
+            Resource: !GetAtt FeatureReviewTable.Arn
+          - Effect: Allow
+            Action: 
+              - dynamodb:UpdateItem
+            Resource:
+              - !GetAtt UsersTable.Arn
+              - !GetAtt FeatureRequestsTable.Arn
+    unlikeMutation:
+      type: AMAZON_DYNAMODB
+      config:
+        tableName: !Ref FeatureReviewTable
+        iamRoleStatements:
+          - Effect: Allow
+            Action: 
+              - dynamodb:DeleteItem
             Resource: !GetAtt FeatureReviewTable.Arn
           - Effect: Allow
             Action: 

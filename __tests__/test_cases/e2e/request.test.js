@@ -33,7 +33,7 @@ describe('Given an authenticated user', () => {
 
       it('They will see the new request in the requests array', async () => {
         expect(nextToken).toBeNull();
-        // expect(requests.length).toEqual(1);
+        expect(requests.length).toEqual(1);
         expect(requests[0]).toEqual(request);
       });
     });
@@ -46,7 +46,7 @@ describe('Given an authenticated user', () => {
       it('Should see Request.liked as true', async () => {
         const { requests } = await when.a_user_calls_getRequests(user, 25);
 
-        // expect(requests).toHaveLength(1);
+        expect(requests).toHaveLength(1);
         expect(requests[0].id).toEqual(request.id);
         expect(requests[0].liked).toEqual(true);
       });
@@ -59,7 +59,7 @@ describe('Given an authenticated user', () => {
         });
       });
 
-      describe.skip('When they unlike the request', () => {
+      describe('When they unlike the request', () => {
         beforeAll(async () => {
           await when.a_user_unlikes_a_request(user, request.id);
         });
