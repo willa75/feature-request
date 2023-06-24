@@ -295,32 +295,6 @@ resources:
           - ALLOW_REFRESH_TOKEN_AUTH
         PreventUserExistenceErrors: ENABLED
     
-    # Logging role necessary for older version of AppSync plugin, will remove next commit.
-    AppSyncLoggingServiceRole:
-      Type: AWS::IAM::Role
-      Properties:
-        AssumeRolePolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-            - Effect: 'Allow'
-              Principal:
-                Service:
-                  - appsync.amazonaws.com
-              Action:
-                - sts:AssumeRole
-        Policies:
-          - PolicyDocument:
-              Version: '2012-10-17'
-              Statement:
-                - Effect: 'Allow'
-                  Action:
-                    - logs:CreateLogGroup
-                    - logs:CreateLogStream
-                    - logs:DescribeLogStreams
-                    - logs:PutLogEvents
-                  Resource: !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*
-            PolicyName: AppSyncLoggingServicePolicy
-
   # Defining outputs, only those mentioned in exportOutputs will be saved.
   Outputs:
     AwsRegion:
