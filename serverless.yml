@@ -45,6 +45,13 @@ appSync:
         - dataSource: requestsTable
           code: resolvers/get-requests.js
 
+    getRequestById:
+      type: Query
+      field: getRequestById
+      functions:
+        - dataSource: requestsTable
+          code: resolvers/get-request.js
+
     # Mutations
     addRequest:
       type: Mutation
