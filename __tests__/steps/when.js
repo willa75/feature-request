@@ -159,11 +159,42 @@ const a_user_unlikes_a_request = async (user, requestId) => {
   return likeResp;
 };
 
+const a_user_calls_getRequestById = async (user, id) => {
+  const client = initAppSyncClient(user);
+  const resp = await client.query({
+    query: gql`query getRequest($id: ID!) {
+      getRequestById(id: $id) {
+        id
+        createdAt
+        text
+        liked
+        likes
+        createdBy {
+          id
+          name
+          screenName
+          requestsCount
+        }
+      }
+    }`,
+    variables: {
+      id
+    }
+  });
+
+  const request = resp.data.getRequestById;
+
+  console.log(`[${user.username}] - queried Request by ${id}`);
+
+  return request;
+};
+
 module.exports = {
   we_invoke_add_request,
   we_invoke_confirmUserSignup,
   a_user_calls_getRequests,
   a_user_calls_addRequest,
   a_user_likes_a_request,
-  a_user_unlikes_a_request
+  a_user_unlikes_a_request,
+  a_user_calls_getRequestById
 };

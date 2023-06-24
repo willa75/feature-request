@@ -23,18 +23,14 @@ describe('Given an authenticated user', () => {
       });
     });
 
-    describe('When they call getRequests', () => {
-      let requests, nextToken;
+    describe('They should be able to query for the request', () => {
+      let resultRequest;
       beforeAll(async () => {
-        const result = await when.a_user_calls_getRequests(user, 25);
-        requests = result.requests;
-        nextToken = result.nextToken;
+        resultRequest = await when.a_user_calls_getRequestById(user, request.id);
       });
 
       it('They will see the new request in the requests array', async () => {
-        expect(nextToken).toBeNull();
-        expect(requests.length).toEqual(1);
-        expect(requests[0]).toEqual(request);
+        expect(resultRequest).toEqual(request);
       });
     });
 
@@ -44,11 +40,10 @@ describe('Given an authenticated user', () => {
       });
 
       it('Should see Request.liked as true', async () => {
-        const { requests } = await when.a_user_calls_getRequests(user, 25);
+        const getRequest = await when.a_user_calls_getRequestById(user, request.id);
 
-        expect(requests).toHaveLength(1);
-        expect(requests[0].id).toEqual(request.id);
-        expect(requests[0].liked).toEqual(true);
+        expect(getRequest.id).toEqual(request.id);
+        expect(getRequest.liked).toEqual(true);
       });
 
       it('Should not be able to like the same request a second time', async () => {
@@ -65,12 +60,12 @@ describe('Given an authenticated user', () => {
         });
 
         it('Should see Request.liked as false', async () => {
-          const { requests } = await when.a_user_calls_getRequests(user, 25);
+          const getRequest = await when.a_user_calls_getRequestById(user, request.id);
 
-          expect(requests).toHaveLength(1);
-          expect(requests[0].likes).toEqual(0);
-          expect(requests[0].id).toEqual(request.id);
-          expect(requests[0].liked).toEqual(false);
+
+          expect(getRequest.likes).toEqual(0);
+          expect(getRequest.id).toEqual(request.id);
+          expect(getRequest.liked).toEqual(false);
         });
 
         it('Should not be able to unlike the same request a second time', async () => {
