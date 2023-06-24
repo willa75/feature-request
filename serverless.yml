@@ -1,20 +1,21 @@
 service: temp-feature-request
+frameworkVersion: '3'
 
+# Plugins can be found on the serverless framework plugin store.
 plugins:
-  - serverless-export-outputs
+  - serverless-export-outputs 
   - serverless-appsync-plugin
   - serverless-iam-roles-per-function
   - serverless-export-env
   - serverless-esbuild
 
-frameworkVersion: '3'
-
+# Provider tells which cloud provider you are using, and how each lambda is configured by default. 
 provider:
   name: aws
   runtime: nodejs16.x
   stage: dev
   region: us-east-1
-  environment:
+  environment: # setting STAGE and Connection environment vars for every lambda
     STAGE: ${self:custom.stage}
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
 
@@ -145,13 +146,15 @@ appSync:
     REVIEWS_TABLE: !Ref FeatureReviewTable
 
 custom:
+  # Get these from CLI deployment, but default to the ones in provider if not set
   region: ${opt:region, self:provider.region}
   stage: ${opt:stage, self:provider.stage}
 
   appSyncLogLevel:
     default: ALL
     prod: ERROR
-  
+
+  # for getting env vars for testing, updated on every deploy  
   export-env:
     overwrite: true
 
@@ -189,6 +192,7 @@ functions:
 
 resources:
   Resources:
+    # defaulting to using global tables, in case the project ever needs to be in multiple availability zones
     UsersTable:
       Type: AWS::DynamoDB::GlobalTable
       Properties:
@@ -247,6 +251,7 @@ resources:
               - Key: Environment
                 Value: ${self:custom.stage}
 
+    # Setting up Cognito to with bad defaults for the password policy, not suitable for production envs
     CognitoUserPool:
       Type: AWS::Cognito::UserPool
       Properties:
@@ -269,6 +274,7 @@ resources:
         LambdaConfig:
           PostConfirmation: !GetAtt ConfirmUserSignupLambdaFunction.Arn
     
+    # Giving cognito ability to run lambda to save user to db
     UserPoolInvokeConfirmUserSignupLambdaPermission:
       Type: AWS::Lambda::Permission
       Properties:
@@ -277,6 +283,7 @@ resources:
         Principal: cognito-idp.amazonaws.com
         SourceArn: !GetAtt CognitoUserPool.Arn
 
+    # Client to allow for logging into AppSync
     WebUserPoolClient:
       Type: AWS::Cognito::UserPoolClient
       Properties:
@@ -287,7 +294,8 @@ resources:
           - ALLOW_USER_PASSWORD_AUTH
           - ALLOW_REFRESH_TOKEN_AUTH
         PreventUserExistenceErrors: ENABLED
-
+    
+    # Logging role necessary for older version of AppSync plugin, will remove next commit.
     AppSyncLoggingServiceRole:
       Type: AWS::IAM::Role
       Properties:
@@ -313,7 +321,7 @@ resources:
                   Resource: !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*
             PolicyName: AppSyncLoggingServicePolicy
 
-
+  # Defining outputs, only those mentioned in exportOutputs will be saved.
   Outputs:
     AwsRegion:
       Value: ${aws:region}
